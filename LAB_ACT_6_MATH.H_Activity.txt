@@ -1,0 +1,177 @@
+#include <iostream>
+#include <cmath>
+#include <iomanip>
+#include <limits>
+
+using namespace std;
+
+// Function to clear the console screen
+void clearScreen() {
+    #ifdef _WIN32
+        system("cls");
+    #else
+        system("clear");
+    #endif
+}
+
+// Function to print a line of characters
+void printLine(char c = '-', int length = 50) {
+    for (int i = 0; i < length; i++) {
+        cout << c;
+    }
+    cout << endl;
+}
+
+// Function to get valid numeric input with validation
+double getInput(const string& prompt, bool allowZero = true) {
+    double value;
+    bool valid = false;
+    
+    do {
+        cout << prompt;
+        if (cin >> value) {
+            if (!allowZero && value == 0) {
+                cout << "Error: Value cannot be zero. Please try again." << endl;
+            } else {
+                valid = true;
+            }
+        } else {
+            cout << "Error: Please enter a valid number." << endl;
+            cin.clear();
+            cin.ignore(numeric_limits<streamsize>::max(), '\n');
+        }
+    } while (!valid);
+    
+    return value;
+}
+
+// Function to format the quadratic equation as a string
+string formatEquation(double a, double b, double c) {
+    string equation = "";
+    
+    // ax² term
+    if (a == 1) {
+        equation += "x²";
+    } else if (a == -1) {
+        equation += "-x²";
+    } else {
+        equation += to_string(a);
+        // Remove trailing zeros
+        equation.erase(equation.find_last_not_of('0') + 1, string::npos);
+        if (equation.back() == '.') equation.pop_back();
+        equation += "x²";
+    }
+    
+    // bx term
+    if (b != 0) {
+        if (b > 0) {
+            equation += " + ";
+        } else {
+            equation += " - ";
+        }
+        
+        double absB = fabs(b);
+        if (absB == 1) {
+            equation += "x";
+        } else {
+            string bStr = to_string(absB);
+            bStr.erase(bStr.find_last_not_of('0') + 1, string::npos);
+            if (bStr.back() == '.') bStr.pop_back();
+            equation += bStr + "x";
+        }
+    }
+    
+    // c term
+    if (c != 0) {
+        if (c > 0) {
+            equation += " + ";
+        } else {
+            equation += " - ";
+        }
+        
+        double absC = fabs(c);
+        string cStr = to_string(absC);
+        cStr.erase(cStr.find_last_not_of('0') + 1, string::npos);
+        if (cStr.back() == '.') cStr.pop_back();
+        equation += cStr;
+    }
+    
+    equation += " = 0";
+    return equation;
+}
+
+int main() {
+    // Initialize variables
+    double a, b, c;
+    double discriminant, x1, x2;
+    double realPart, imagPart;
+    char choice;
+    
+    do {
+        clearScreen();
+        
+        // Display header
+        cout << "QUADRATIC EQUATION SOLVER" << endl;
+        printLine('=');
+        cout << "This program solves equations in the form: ax² + bx + c = 0" << endl;
+        printLine();
+        
+        // Get coefficients
+        cout << "ENTER COEFFICIENTS:" << endl;
+        a = getInput("a = ", false);  // a cannot be zero
+        b = getInput("b = ");
+        c = getInput("c = ");
+        
+        // Display the equation
+        cout << endl << "EQUATION: " << formatEquation(a, b, c) << endl;
+        printLine();
+        
+        // Calculate the discriminant
+        discriminant = b*b - 4*a*c;
+        
+        // Display discriminant
+        cout << "Discriminant = " << discriminant << endl;
+        
+        // Determine the type of roots and calculate them
+        cout << endl << "SOLUTION:" << endl;
+        
+        // Set precision for output
+        cout << fixed << setprecision(4);
+        
+        if (discriminant > 0) {
+            // Two real and distinct roots
+            x1 = (-b + sqrt(discriminant)) / (2*a);
+            x2 = (-b - sqrt(discriminant)) / (2*a);
+            
+            cout << "Two real roots:" << endl;
+            cout << "x1 = " << x1 << endl;
+            cout << "x2 = " << x2 << endl;
+            
+        } else if (discriminant == 0) {
+            // One real root (repeated)
+            x1 = -b / (2*a);
+            
+            cout << "One repeated root:" << endl;
+            cout << "x = " << x1 << endl;
+            
+        } else {
+            // Complex roots
+            realPart = -b / (2*a);
+            imagPart = sqrt(-discriminant) / (2*a);
+            
+            cout << "Two complex roots:" << endl;
+            cout << "x1 = " << realPart << " + " << imagPart << "i" << endl;
+            cout << "x2 = " << realPart << " - " << imagPart << "i" << endl;
+        }
+        
+        // Ask if the user wants to solve another equation
+        printLine();
+        cout << "Solve another equation? (y/n): ";
+        cin >> choice;
+        
+    } while (choice == 'y' || choice == 'Y');
+    
+    cout << endl << "Thank you for using the Quadratic Equation Solver!" << endl;
+    
+    return 0;
+}
